@@ -35,7 +35,7 @@ class _UserWidgetState extends State<UserWidget> {
         await firestore.collection("chatroom").get().then((value) async {
           var isChatRoomExist = false;
           for (var i = 0; i < value.docs.length; i++) {
-            if (value.docs[i].id == chatRoomId) {
+            if (value.docs[i].id == chatRoomId.toString().replaceAll(" ", "")) {
               isChatRoomExist = true;
             }
           }

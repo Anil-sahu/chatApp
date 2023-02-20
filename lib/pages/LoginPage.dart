@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Icon(
-              Icons.message,
+              Icons.chat,
               size: 120,
               color: secondaryColor,
             ),
@@ -62,15 +62,14 @@ class _LoginPageState extends State<LoginPage> {
                 mainColor: secondaryColor,
                 onpress: () async {
                   FirebaseService fs = FirebaseService();
-                setState(() {
-                  if(name!=null) {
-                    User user =User(name:name!);
-                      fs.createUser(context,user);
-                  }
-                });
-                 
+                  setState(() {
+                    if (name != null) {
+                      User user = User(name: name!);
+                      fs.createUser(context, user);
+                    }
+                  });
 
-                
+                  fs.isLoading.value ? Text("wait...") : SizedBox();
                 }),
           ],
         ),

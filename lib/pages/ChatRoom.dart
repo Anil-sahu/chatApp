@@ -164,15 +164,14 @@ class _ChatStreamState extends State<ChatStream> {
 
           return Expanded(
             child: ListView(
-              reverse: true,
+              reverse: false,
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
               children: messageWidgets,
             ),
           );
         } else {
-          return const Center(
-            child:
-                CircularProgressIndicator(backgroundColor: Colors.deepPurple),
+          return Center(
+            child: CircularProgressIndicator(backgroundColor: secondaryColor),
           );
         }
       },

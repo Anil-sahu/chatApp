@@ -43,7 +43,7 @@ class FirebaseService extends GetxController {
       } else {
         isLoading.value = false;
         failed.value = true;
-        Navigator.pushReplacementNamed(context, '/home');
+        Get.to(() => HomePage(user: user));
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -52,6 +52,7 @@ class FirebaseService extends GetxController {
 
   chatRoom(chat, chatRoomId) async {
     try {
+    
       await _firestore.collection("chatroom").doc(chatRoomId).update({
         'count': FieldValue.increment(1),
         'chat': FieldValue.arrayUnion([chat])

@@ -8,7 +8,7 @@ import '../widgets/UserWidget.dart';
 
 class HomePage extends StatefulWidget {
   User user;
-   HomePage({super.key,required this.user});
+  HomePage({super.key, required this.user});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -44,7 +44,14 @@ class _HomePageState extends State<HomePage> {
               return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
-                    return UserWidget(userInfo: snapshot.data!.docs[index],user:widget.user);
+                    if (snapshot.data!.docs[index]['name'] ==
+                        widget.user.name) {
+                      return SizedBox();
+                    } else {
+                      return UserWidget(
+                          userInfo: snapshot.data!.docs[index],
+                          user: widget.user);
+                    }
                   });
             } else {
               return Center(

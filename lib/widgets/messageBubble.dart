@@ -49,7 +49,7 @@ class MessageBubble extends StatelessWidget {
               child: Text(
                 msgText,
                 style: TextStyle(
-                  // color: user ? Colors.white : secondaryColor,
+                  color: user.name == msgSender ? Colors.white : secondaryColor,
                   fontFamily: 'Poppins',
                   fontSize: 15,
                 ),

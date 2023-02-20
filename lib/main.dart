@@ -1,7 +1,9 @@
+import 'package:chatapp/constant/colors.dart';
 import 'package:chatapp/pages/LoginPage.dart';
 import 'package:chatapp/service/Firebase.service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/HomePage.dart';
@@ -21,20 +23,21 @@ class ChatApp extends StatelessWidget {
   Widget build(BuildContext context) {
     print(fs.name);
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'ChatApp',
-      theme: ThemeData(
-        textTheme: const TextTheme(
-          bodyText1: TextStyle(
-            fontFamily: 'Poppins',
+        debugShowCheckedModeBanner: false,
+        title: 'ChatApp',
+        theme: ThemeData(
+          textTheme: const TextTheme(
+            bodyText1: TextStyle(
+              fontFamily: 'Poppins',
+            ),
           ),
         ),
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => Welcomepage(),
-        '/login': (context) => LoginPage(),
-      },
-    );
+        home: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(
+              statusBarColor: secondaryColor,
+              systemNavigationBarDividerColor: secondaryColor,
+              systemNavigationBarColor: secondaryColor),
+          child: Welcomepage(),
+        ));
   }
 }
