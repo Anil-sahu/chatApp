@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constant/colors.dart';
+import '../model/userModel.dart';
 import '../pages/ChatRoom.dart';
 import '../service/Firebase.service.dart';
 
 class UserWidget extends StatefulWidget {
   var userInfo;
-
-  UserWidget({super.key, required this.userInfo});
+  User user;
+  UserWidget({super.key, required this.userInfo, required this.user});
 
   @override
   State<UserWidget> createState() => _UserWidgetState();
@@ -16,22 +18,41 @@ class UserWidget extends StatefulWidget {
 
 class _UserWidgetState extends State<UserWidget> {
   FirebaseService fs = FirebaseService();
-FirebaseFirestore firestore= FirebaseFirestore.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: ()async {
+      onTap: () async {
+        var chatRoomId;
+        setState(() {
+          if (widget.user.name.toString().compareTo(widget.userInfo['name']) >
+              0) {
+            chatRoomId = (widget.user.name! + widget.userInfo['name']);
+          } else {
+            chatRoomId = widget.userInfo['name'] + widget.user.name;
+          }
+        });
+        await firestore.collection("chatroom").get().then((value) async {
+          var isChatRoomExist = false;
+          for (var i = 0; i < value.docs.length; i++) {
+            if (value.docs[i].id == chatRoomId) {
+              isChatRoomExist = true;
+            }
+          }
 
-       
-        fs.setChatRoomId(fs.name, widget.userInfo['name']);
-        await firestore
-          .collection("chatroom")
-          .doc(fs.chatRoomId.value).set({"count":0,
-          "chat":[]});
+          if (isChatRoomExist == false) {
+            await firestore
+                .collection("chatroom")
+                .doc(chatRoomId.toString().replaceAll(" ", ""))
+                .set({"count": 0, "chat": []});
+          }
+        });
+
         Get.to(
           () => ChatRoom(
-            seconduser: widget.userInfo['name'],
-          ),
+              seconduser: widget.userInfo['name'],
+              user: widget.user,
+              chatroomId: chatRoomId.toString().replaceAll(" ", "")),
         );
       },
       child: Container(

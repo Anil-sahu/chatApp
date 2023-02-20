@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constant/colors.dart';
 
+import '../model/userModel.dart';
 import '../widgets/messageBubble.dart';
 
 final _firestore = FirebaseFirestore.instance;
@@ -13,8 +14,13 @@ String? messageText;
 
 class ChatRoom extends StatefulWidget {
   String seconduser = "";
-
-  ChatRoom({super.key, required this.seconduser});
+  User user;
+  String chatroomId;
+  ChatRoom(
+      {super.key,
+      required this.seconduser,
+      required this.user,
+      required this.chatroomId});
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
@@ -65,7 +71,10 @@ class _ChatRoomState extends State<ChatRoom> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          ChatStream(),
+          ChatStream(
+            chatRoomId: widget.chatroomId,
+            user: widget.user,
+          ),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             decoration: kMessageContainerDecoration,
@@ -95,10 +104,10 @@ class _ChatRoomState extends State<ChatRoom> {
                     color: secondaryColor,
                     onPressed: () {
                       fs.chatRoom({
-                        'sender': fs.name,
+                        'sender': widget.user.name,
                         'text': messageText,
                         'timestamp': DateTime.now().millisecondsSinceEpoch,
-                      });
+                      }, widget.chatroomId);
 
                       chatMsgTextController.clear();
                     },
@@ -118,16 +127,25 @@ class _ChatRoomState extends State<ChatRoom> {
   }
 }
 
-class ChatStream extends StatelessWidget {
-  ChatStream({super.key});
+class ChatStream extends StatefulWidget {
+  String chatRoomId;
+  User user;
+  ChatStream({super.key, required this.chatRoomId, required this.user});
+
+  @override
+  State<ChatStream> createState() => _ChatStreamState();
+}
+
+class _ChatStreamState extends State<ChatStream> {
   FirebaseService fs = FirebaseService();
+
   final firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream:
-          firestore.collection("chatroom").doc(fs.chatRoomId.value).snapshots(),
+          firestore.collection("chatroom").doc(widget.chatRoomId).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final messages = snapshot.data!['chat'];
@@ -137,9 +155,13 @@ class ChatStream extends StatelessWidget {
             final msgSender = message['sender'];
 
             final msgBubble = MessageBubble(
-                msgText: msgText, msgSender: msgSender, user: msgSender);
+              msgText: msgText,
+              msgSender: msgSender,
+              user: widget.user,
+            );
             messageWidgets.add(msgBubble);
           }
+
           return Expanded(
             child: ListView(
               reverse: true,

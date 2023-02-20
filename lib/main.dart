@@ -1,23 +1,28 @@
 import 'package:chatapp/pages/LoginPage.dart';
+import 'package:chatapp/service/Firebase.service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/HomePage.dart';
 import 'pages/WelcomePage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(ChatApp());
 }
 
 class ChatApp extends StatelessWidget {
+  FirebaseService fs = FirebaseService();
+
   @override
   Widget build(BuildContext context) {
+    print(fs.name);
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ChatApp',
-
       theme: ThemeData(
         textTheme: const TextTheme(
           bodyText1: TextStyle(
@@ -25,14 +30,10 @@ class ChatApp extends StatelessWidget {
           ),
         ),
       ),
-      // home: ChatterHome(),
       initialRoute: '/',
       routes: {
         '/': (context) => Welcomepage(),
         '/login': (context) => LoginPage(),
-        '/home': (context) => const HomePage(),
-
-        // '/chats':(context)=>ChatterScreen()
       },
     );
   }

@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constant/colors.dart';
+import '../model/userModel.dart';
 import '../widgets/UserWidget.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  User user;
+   HomePage({super.key,required this.user});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -16,19 +19,23 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-          preferredSize: Size(10, 100),
-          child: Container(
-              alignment: Alignment.center,
-              height: 100,
-              color: secondaryColor,
-              child: Text(
-                "ChatApp",
-                style: TextStyle(
-                    color: primaryColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
-              ))),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: secondaryColor,
+        title: Text(
+          "ChatApp",
+          style: TextStyle(
+              color: primaryColor, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+              onPressed: () async {
+                SharedPreferences pref = await SharedPreferences.getInstance();
+                pref.remove("name");
+              },
+              icon: Icon(Icons.logout))
+        ],
+      ),
       body: StreamBuilder(
         stream: firestore.collection("user").snapshots(),
         builder: (context, snapshot) {
@@ -37,7 +44,7 @@ class _HomePageState extends State<HomePage> {
               return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
-                    return UserWidget(userInfo: snapshot.data!.docs[index]);
+                    return UserWidget(userInfo: snapshot.data!.docs[index],user:widget.user);
                   });
             } else {
               return Center(

@@ -1,62 +1,65 @@
+import 'package:chatapp/pages/HomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../model/userModel.dart';
+
 class FirebaseService extends GetxController {
-  var name = "".obs;
+  var name;
   String url = "";
   var userList = [].obs;
   final _firestore = FirebaseFirestore.instance;
   var isExist = false.obs;
   var isLoading = false.obs;
   var failed = false.obs;
-  var chatRoomId = "".obs;
 
-  setChatRoomId(currentUser, chatUser) {
-    if (name.value.compareTo(chatUser) > 0) {
-      chatRoomId.value = name.value + chatUser;
-    } else {
-      chatRoomId.value = chatUser + name.value;
-    }
+  @override
+  onInit() async {
+    _firestore
+        .collection("user")
+        .get()
+        .then((value) => userList.value = value.docs);
+    super.onInit();
   }
 
-  createUser(context) async {
+  createUser(context, User user) async {
+    bool isuserExist = false;
+    await _firestore.collection("user").get().then((value) {
+      for (var i = 0; i < value.docs.length; i++) {
+        if (user.name == value.docs[i]['name']) {
+          isuserExist = true;
+        }
+      }
+    });
+
     isLoading.value = true;
     try {
-      if (name != null) {
-        for (var user in userList.value) {
-          if (name = user['name']) {
-            isExist.value = true;
-          }
-        }
-        if (isExist.value == false) {
-          await _firestore.collection("user").add({
-            "name": name,
-            "url": "",
-            "dat": DateTime.now()
-          }).whenComplete(() {
-            Navigator.pushReplacementNamed(context, '/home');
-            isLoading.value = false;
-          });
-        } else {
+      if (isuserExist == false) {
+        await _firestore.collection("user").add(user.toMap()).whenComplete(() {
+          Get.to(() => HomePage(user: user));
           isLoading.value = false;
-          failed.value = true;
-          Navigator.pushReplacementNamed(context, '/home');
-        }
+        });
+      } else {
+        isLoading.value = false;
+        failed.value = true;
+        Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
       debugPrint(e.toString());
     }
   }
 
-  chatRoom(chat) async {
+  chatRoom(chat, chatRoomId) async {
     try {
-      await _firestore.collection("chatroom").doc(chatRoomId.value).update({
+      await _firestore.collection("chatroom").doc(chatRoomId).update({
         'count': FieldValue.increment(1),
-        'chat': FieldValue.arrayUnion(chat)
+        'chat': FieldValue.arrayUnion([chat])
       });
+      print(chat);
     } catch (e) {
-      debugPrint("error message");
+      print("error");
+      debugPrint(e.toString());
     }
   }
 }
